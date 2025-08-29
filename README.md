@@ -1,14 +1,20 @@
-# Wraith
+![Wraith Logo](./docs/wraith.png)
 
-AI powered vulnerability scanner for package dependencies.
+# Wraith - Resurrected
 
-## Installation
+A vulnerability scanner for package dependencies.
+
+### Features
+
+Just a wrapper around [osv-scanner](https://github.com/google/osv-scanner) with some convenience functions.
+
+### Installation
 
 ```bash
 go get github.com/ghostsecurity/wraith
 ```
 
-## Basic Usage
+### Basic Usage
 
 ```go
 package main
@@ -33,7 +39,7 @@ func main() {
 }
 ```
 
-## Advanced Usage
+### Advanced Usage
 
 ```go
 package main
@@ -76,7 +82,7 @@ func main() {
 }
 ```
 
-## Pipeline Integration
+### Pipeline Integration
 
 ```go
 package main
@@ -108,17 +114,3 @@ func analyzeLockfile(lockfilePath string) {
     }
 }
 ```
-
-## Requirements
-
-- Go 1.24.3 or later
-- OSV-Scanner binary in PATH (install: `brew install osv-scanner`)
-
-## Supported Lockfiles
-
-- `go.mod` (Go modules)
-- `poetry.lock` (Python Poetry)
-- `uv.lock` (Python UV)
-- `yarn.lock` (Node.js Yarn)
-- `Gemfile.lock` (Ruby)
-- And many more supported by OSV-Scanner
