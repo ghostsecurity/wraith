@@ -1,6 +1,7 @@
 package wraith
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -86,20 +87,10 @@ func (s *Scanner) ScanLockfile(lockfilePath string, options ...ScanOption) (*OSV
 		"--format", "json",
 	)
 
-	// Execute command
-	output, err := cmd.Output()
+	// Execute command and capture stdout/stderr separately
+	output, err := s.executeOSVScanner(ctx, cmd)
 	if err != nil {
-		// Handle different types of errors
-		if ctx.Err() == context.DeadlineExceeded {
-			return nil, fmt.Errorf("scan timed out after %v", s.timeout)
-		}
-
-		// Get stderr for better error messages
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			return nil, fmt.Errorf("osv-scanner failed: %s", string(exitErr.Stderr))
-		}
-
-		return nil, fmt.Errorf("failed to execute osv-scanner: %w", err)
+		return nil, err
 	}
 
 	// Parse JSON output
@@ -119,6 +110,45 @@ func (s *Scanner) SetTimeout(timeout time.Duration) {
 // GetBinaryPath returns the path to the osv-scanner binary being used
 func (s *Scanner) GetBinaryPath() string {
 	return s.binaryPath
+}
+
+// executeOSVScanner handles the actual command execution and manages OSV-scanner's exit code behavior
+// OSV-scanner exits with code 1 when vulnerabilities are found, but still provides valid JSON output
+func (s *Scanner) executeOSVScanner(ctx context.Context, cmd *exec.Cmd) ([]byte, error) {
+	// Capture stdout and stderr separately
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	output := stdout.Bytes()
+
+	if err != nil {
+		// Handle different types of errors
+		if ctx.Err() == context.DeadlineExceeded {
+			return nil, fmt.Errorf("scan timed out after %v", s.timeout)
+		}
+
+		if _, ok := err.(*exec.ExitError); ok {
+			// OSV-scanner exits with code 1 when vulnerabilities are found
+			// Check if we got valid JSON output despite the exit code
+			if len(output) > 0 && s.isValidJSON(output) {
+				// Valid JSON found, return the output despite exit code
+				return output, nil
+			}
+			return nil, fmt.Errorf("osv-scanner failed: %s", stderr.String())
+		}
+
+		return nil, fmt.Errorf("failed to execute osv-scanner: %w", err)
+	}
+
+	return output, nil
+}
+
+// isValidJSON checks if the provided bytes contain valid JSON by attempting to parse into OSVScanResult
+func (s *Scanner) isValidJSON(data []byte) bool {
+	var testResult OSVScanResult
+	return json.Unmarshal(data, &testResult) == nil
 }
 
 // QuickScan is a convenience function for simple scanning

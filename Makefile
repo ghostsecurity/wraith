@@ -12,19 +12,15 @@ help: ## Show this help
 	@cat ${MAKEFILE_LIST} | grep "[#]# " | grep -v grep | sort | column -t -s '##' | sed -e 's/^/ /'
 	@echo ""
 
-.PHONY: build
-build: ## Build the binary
-	go build $(LDFLAGS) -o $(BINARY_NAME) ./cmd/wraith
-
 .PHONY: deps
 deps: ## Install Go dependencies
 	go mod download
 	go mod tidy
 
 .PHONY: clean
-clean: ## Clean build artifacts
-	rm -f $(BINARY_NAME)
-	go clean
+clean: ## Clean test cache and tidy module
+	go clean -testcache
+	go mod tidy
 
 .PHONY: test-all
 test-all: ## Run all tests (unit + integration)
