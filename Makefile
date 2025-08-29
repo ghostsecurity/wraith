@@ -26,9 +26,23 @@ clean: ## Clean build artifacts
 	rm -f $(BINARY_NAME)
 	go clean
 
-.PHONY: test
-test: ## Run all tests
+.PHONY: test-all
+test-all: ## Run all tests (unit + integration)
 	go test -v ./...
+
+.PHONY: test
+test: ## Run unit tests only (fast, no OSV-Scanner required)
+	go test -v ./pkg/... -short
+
+.PHONY: test-integration
+test-integration: ## Run integration tests (requires OSV-Scanner)
+	@which osv-scanner || (echo "❌ osv-scanner not found in PATH." && exit 1)
+	go test -v ./pkg/... -run "Integration"
+
+.PHONY: test-demo
+test-demo: ## Run live demo with real lockfiles
+	@which osv-scanner || (echo "❌ osv-scanner not found in PATH." && exit 1)
+	go test -v ./pkg/... -run "QuickScan"
 
 .PHONY: lint
 lint: ## Run linter

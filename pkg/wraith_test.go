@@ -81,11 +81,6 @@ func TestOSVScanResultParsing(t *testing.T) {
 				}
 			}
 
-			// Check experimental config
-			if result.ExperimentalConfig != nil && result.ExperimentalConfig.Licenses != nil {
-				t.Logf("License config found: summary=%v", result.ExperimentalConfig.Licenses.Summary)
-			}
-
 			t.Logf("Successfully parsed %s: %d sources, %d packages in first source",
 				tc.filename, len(result.Results), len(firstResult.Packages))
 		})
