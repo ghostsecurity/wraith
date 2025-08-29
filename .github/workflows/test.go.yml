@@ -1,0 +1,33 @@
+name: Test
+permissions:
+  contents: read
+on:
+  pull_request:
+  workflow_dispatch:
+env:
+  OSV_VERSION: 'v2.2.2'
+jobs:
+  test-x86:
+    name: Go Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: apt-get update
+        run: |
+          sudo apt-get update
+      - name: install curl
+        run: |
+          sudo apt-get install -y curl
+      - name: install osv-scanner
+        run: |
+          echo "Installing OSV-Scanner version: ${{ env.OSV_VERSION }}"
+          curl -L --output /usr/local/bin/osv-scanner https://github.com/google/osv-scanner/releases/download/${{ env.OSV_VERSION }}/osv-scanner_linux_amd64
+          chmod +x /usr/local/bin/osv-scanner
+          echo "Verifying installation:"
+          osv-scanner --version
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Run Go tests
+        run: make test
