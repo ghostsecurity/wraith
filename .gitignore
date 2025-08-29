@@ -1,0 +1,24 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!.gitattributes
+!.github/**
+!.vscode/*
+!cmd/**
+!docs/*
+!examples/**
+!wraith/**
+!pkg/**
+
+!*.go
+!go.sum
+!go.mod
+
+!README.md
+!LICENSE
+!Makefile
+
+# ...even if they are in subdirectories
+!*/
