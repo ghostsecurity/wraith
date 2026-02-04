@@ -6,11 +6,13 @@
 !.gitattributes
 !.github/**
 !.vscode/*
+!.goreleaser.yaml
 !cmd/**
 !docs/*
 !examples/**
 !wraith/**
 !pkg/**
+!scripts/**
 
 !*.go
 !go.sum
@@ -18,6 +20,7 @@
 
 !README.md
 !LICENSE
+!NOTICE
 !Makefile
 
 # ...even if they are in subdirectories

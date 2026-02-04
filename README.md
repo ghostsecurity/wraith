@@ -4,15 +4,66 @@
 
 A vulnerability scanner for package dependencies.
 
-### Features
+## Features
 
-Just a wrapper around [osv-scanner](https://github.com/google/osv-scanner) with some convenience functions.
+A wrapper around [osv-scanner](https://github.com/google/osv-scanner) with a user-friendly CLI and Go library. The CLI release bundles osv-scanner, so you only need to do one install.
 
-### Installation
+## CLI Installation
+
+Download the latest release for your platform from the [releases page](https://github.com/ghostsecurity/wraith/releases).
+
+```bash
+# macOS (Apple Silicon)
+curl -L https://github.com/ghostsecurity/wraith/releases/latest/download/wraith_darwin_arm64.tar.gz | tar xz
+sudo mv wraith osv-scanner /usr/local/bin/
+
+# macOS (Intel)
+curl -L https://github.com/ghostsecurity/wraith/releases/latest/download/wraith_darwin_amd64.tar.gz | tar xz
+sudo mv wraith osv-scanner /usr/local/bin/
+
+# Linux (x86_64)
+curl -L https://github.com/ghostsecurity/wraith/releases/latest/download/wraith_linux_amd64.tar.gz | tar xz
+sudo mv wraith osv-scanner /usr/local/bin/
+
+# Linux (ARM64)
+curl -L https://github.com/ghostsecurity/wraith/releases/latest/download/wraith_linux_arm64.tar.gz | tar xz
+sudo mv wraith osv-scanner /usr/local/bin/
+```
+
+For Windows, download the `.zip` file from the releases page and extract both `wraith.exe` and `osv-scanner.exe` to a directory in your PATH.
+
+## CLI Usage
+
+```bash
+# Scan a lockfile (text output)
+wraith scan go.mod
+
+# Output as JSON
+wraith scan --format json go.mod
+
+# Output as Markdown
+wraith scan --format md go.mod
+
+# Write Markdown report to file
+wraith scan --output report.md go.mod
+```
+
+> **Note:** Flags must come before the lockfile path.
+
+### Exit Codes
+
+- `0`: No vulnerabilities found
+- `1`: Vulnerabilities found or error occurred
+
+## Library Installation
 
 ```bash
 go get github.com/ghostsecurity/wraith
 ```
+
+> **Note:** When using wraith as a library, you need [osv-scanner](https://github.com/google/osv-scanner) installed and available in your PATH.
+
+## Library Usage
 
 ### Basic Usage
 

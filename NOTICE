@@ -1,0 +1,6 @@
+Wraith
+Copyright 2026 Ghost Security
+
+This product includes software developed by Google:
+- osv-scanner (https://github.com/google/osv-scanner)
+  Licensed under the Apache License, Version 2.0
