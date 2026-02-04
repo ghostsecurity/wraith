@@ -1,0 +1,67 @@
+version: 2
+
+project_name: wraith
+
+env:
+  - OSV_VERSION=v2.3.2
+
+before:
+  hooks:
+    - go mod tidy
+    - bash scripts/download-osv-scanner.sh
+
+builds:
+  - id: wraith
+    main: ./cmd/wraith
+    binary: wraith
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+
+archives:
+  - id: default
+    formats: ['tar.gz']
+    format_overrides:
+      - goos: windows
+        formats: ['zip']
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    files:
+      - README.md
+      - LICENSE
+      - NOTICE
+      - src: build/osv-scanner/{{ .Os }}_{{ .Arch }}/*
+        strip_parent: true
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+
+release:
+  github:
+    owner: ghostsecurity
+    name: wraith
+  draft: false
+  prerelease: auto
+  name_template: "v{{.Version}}"

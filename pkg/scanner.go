@@ -29,18 +29,31 @@ type ScanOptions struct {
 type ScanOption func(*ScanOptions)
 
 // NewScanner creates a new scanner instance
-// It will look for osv-scanner in PATH or use the provided binary path
+// It will look for osv-scanner in the following order:
+// 1. Provided binary path (if specified)
+// 2. Same directory as the wraith executable (bundled)
+// 3. System PATH
 func NewScanner(binaryPath ...string) (*Scanner, error) {
 	var path string
 
 	if len(binaryPath) > 0 && binaryPath[0] != "" {
 		path = binaryPath[0]
 	} else {
-		// Look for osv-scanner in PATH
-		var err error
-		path, err = exec.LookPath("osv-scanner")
-		if err != nil {
-			return nil, fmt.Errorf("osv-scanner not found in PATH: %w", err)
+		// First, try to find bundled osv-scanner next to the executable
+		if execPath, err := os.Executable(); err == nil {
+			bundledPath := filepath.Join(filepath.Dir(execPath), "osv-scanner")
+			if _, err := os.Stat(bundledPath); err == nil {
+				path = bundledPath
+			}
+		}
+
+		// Fall back to PATH if bundled binary not found
+		if path == "" {
+			var err error
+			path, err = exec.LookPath("osv-scanner")
+			if err != nil {
+				return nil, fmt.Errorf("osv-scanner not found (install it or place it next to wraith): %w", err)
+			}
 		}
 	}
 
