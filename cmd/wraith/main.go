@@ -58,10 +58,10 @@ func runScan(args []string) int {
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		fs.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
-		fmt.Fprintf(os.Stderr, "  wraith scan go.mod                    # Text output to terminal\n")
-		fmt.Fprintf(os.Stderr, "  wraith scan go.mod --format json      # JSON output to stdout\n")
-		fmt.Fprintf(os.Stderr, "  wraith scan go.mod --format md        # Markdown output to stdout\n")
-		fmt.Fprintf(os.Stderr, "  wraith scan go.mod --output report.md # Write markdown to file\n")
+		fmt.Fprintf(os.Stderr, "  wraith scan go.mod                      # Text output to terminal\n")
+		fmt.Fprintf(os.Stderr, "  wraith scan --format json go.mod        # JSON output to stdout\n")
+		fmt.Fprintf(os.Stderr, "  wraith scan --format md go.mod          # Markdown output to stdout\n")
+		fmt.Fprintf(os.Stderr, "  wraith scan --output report.md go.mod   # Write markdown to file\n")
 	}
 
 	if err := fs.Parse(args); err != nil {
@@ -277,9 +277,9 @@ COMMANDS:
 
 EXAMPLES:
     wraith scan go.mod
-    wraith scan poetry.lock --format json
-    wraith scan go.mod --format md
-    wraith scan go.mod --output report.md
+    wraith scan --format json poetry.lock
+    wraith scan --format md go.mod
+    wraith scan --output report.md go.mod
 
 Run 'wraith scan --help' for more information on the scan command.
 `)

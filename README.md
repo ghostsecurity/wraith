@@ -39,14 +39,16 @@ For Windows, download the `.zip` file from the releases page and extract both `w
 wraith scan go.mod
 
 # Output as JSON
-wraith scan go.mod --format json
+wraith scan --format json go.mod
 
 # Output as Markdown
-wraith scan go.mod --format md
+wraith scan --format md go.mod
 
 # Write Markdown report to file
-wraith scan go.mod --output report.md
+wraith scan --output report.md go.mod
 ```
+
+> **Note:** Flags must come before the lockfile path.
 
 ### Exit Codes
 
