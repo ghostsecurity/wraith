@@ -187,26 +187,69 @@ func TestScannerAPI(t *testing.T) {
 	})
 }
 
-// TestFutureOptions validates that our options system is ready for expansion
-func TestFutureOptions(t *testing.T) {
-	t.Run("options system extensibility", func(t *testing.T) {
-		// Verify our options pattern will work for future features
+// TestScanOptions validates all scan option functions
+func TestScanOptions(t *testing.T) {
+	t.Run("WithOffline sets offline mode", func(t *testing.T) {
 		opts := &ScanOptions{}
-
-		// Future option functions would look like this:
-		// withOffline := func(o *ScanOptions) { o.Offline = true }
-		// withConfigFile := func(configPath string) ScanOption {
-		//     return func(o *ScanOptions) { o.ConfigFile = configPath }
-		// }
-
-		// For now, just verify the pattern works
-		dummyOption := func(o *ScanOptions) {
-			// This would set some option in the future
+		WithOffline()(opts)
+		if !opts.Offline {
+			t.Error("expected Offline to be true")
 		}
+	})
 
-		dummyOption(opts)
+	t.Run("WithOfflineDownload sets download flag", func(t *testing.T) {
+		opts := &ScanOptions{}
+		WithOfflineDownload()(opts)
+		if !opts.DownloadOfflineDBs {
+			t.Error("expected DownloadOfflineDBs to be true")
+		}
+	})
 
-		t.Log("Options system ready for future expansion")
+	t.Run("WithConfigFile sets config path", func(t *testing.T) {
+		opts := &ScanOptions{}
+		WithConfigFile("/path/to/config.toml")(opts)
+		if opts.ConfigFile != "/path/to/config.toml" {
+			t.Errorf("expected ConfigFile to be '/path/to/config.toml', got '%s'", opts.ConfigFile)
+		}
+	})
+
+	t.Run("WithLicenses enables license scanning", func(t *testing.T) {
+		opts := &ScanOptions{}
+		WithLicenses()(opts)
+		if !opts.Licenses {
+			t.Error("expected Licenses to be true")
+		}
+	})
+
+	t.Run("WithLicenseAllowlist enables licenses with allowlist", func(t *testing.T) {
+		opts := &ScanOptions{}
+		WithLicenseAllowlist("MIT", "Apache-2.0")(opts)
+		if !opts.Licenses {
+			t.Error("expected Licenses to be true")
+		}
+		if len(opts.LicenseAllowlist) != 2 {
+			t.Errorf("expected 2 licenses in allowlist, got %d", len(opts.LicenseAllowlist))
+		}
+		if opts.LicenseAllowlist[0] != "MIT" || opts.LicenseAllowlist[1] != "Apache-2.0" {
+			t.Errorf("unexpected allowlist values: %v", opts.LicenseAllowlist)
+		}
+	})
+
+	t.Run("multiple options can be combined", func(t *testing.T) {
+		opts := &ScanOptions{}
+		WithOffline()(opts)
+		WithConfigFile("/config.toml")(opts)
+		WithLicenseAllowlist("MIT")(opts)
+
+		if !opts.Offline {
+			t.Error("expected Offline to be true")
+		}
+		if opts.ConfigFile != "/config.toml" {
+			t.Error("expected ConfigFile to be set")
+		}
+		if !opts.Licenses || len(opts.LicenseAllowlist) != 1 {
+			t.Error("expected Licenses and allowlist to be set")
+		}
 	})
 }
 

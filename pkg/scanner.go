@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -19,14 +20,48 @@ type Scanner struct {
 
 // ScanOptions configures the scanning behavior
 type ScanOptions struct {
-	// Future options can be added here
-	// TODO: Add support for offline mode
-	// TODO: Add support for custom config files
-	// TODO: Add support for license scanning
+	// Offline mode - scan without network access
+	Offline            bool
+	DownloadOfflineDBs bool // Download/refresh local DB before offline scan
+
+	// Custom config file
+	ConfigFile string
+
+	// License scanning
+	Licenses         bool     // Enable license scanning
+	LicenseAllowlist []string // Allowlist of permitted licenses (e.g., "MIT", "Apache-2.0")
 }
 
 // ScanOption is a functional option for configuring scans
 type ScanOption func(*ScanOptions)
+
+// WithOffline enables offline scanning mode (no network requests)
+func WithOffline() ScanOption {
+	return func(o *ScanOptions) { o.Offline = true }
+}
+
+// WithOfflineDownload downloads/refreshes the local vulnerability database
+func WithOfflineDownload() ScanOption {
+	return func(o *ScanOptions) { o.DownloadOfflineDBs = true }
+}
+
+// WithConfigFile specifies a custom osv-scanner config file
+func WithConfigFile(path string) ScanOption {
+	return func(o *ScanOptions) { o.ConfigFile = path }
+}
+
+// WithLicenses enables license scanning with summary
+func WithLicenses() ScanOption {
+	return func(o *ScanOptions) { o.Licenses = true }
+}
+
+// WithLicenseAllowlist enables license scanning with an allowlist
+func WithLicenseAllowlist(licenses ...string) ScanOption {
+	return func(o *ScanOptions) {
+		o.Licenses = true
+		o.LicenseAllowlist = licenses
+	}
+}
 
 // NewScanner creates a new scanner instance
 // It will look for osv-scanner in the following order:
@@ -92,13 +127,32 @@ func (s *Scanner) ScanLockfile(lockfilePath string, options ...ScanOption) (*OSV
 	ctx, cancel := context.WithTimeout(context.Background(), s.timeout)
 	defer cancel()
 
-	// Always use JSON format and scan the specific lockfile
-	// OSV-Scanner command structure: osv-scanner scan source --lockfile <path> --format json
-	cmd := exec.CommandContext(ctx, s.binaryPath,
-		"scan", "source",
-		"--lockfile", absPath,
-		"--format", "json",
-	)
+	// Build base args
+	args := []string{"scan", "source", "--lockfile", absPath, "--format", "json"}
+
+	// Add offline mode flags
+	if opts.DownloadOfflineDBs {
+		args = append(args, "--download-offline-databases")
+	}
+	if opts.Offline {
+		args = append(args, "--offline")
+	}
+
+	// Add custom config file
+	if opts.ConfigFile != "" {
+		args = append(args, "--config="+opts.ConfigFile)
+	}
+
+	// Add license scanning flags
+	if opts.Licenses {
+		if len(opts.LicenseAllowlist) > 0 {
+			args = append(args, "--licenses="+strings.Join(opts.LicenseAllowlist, ","))
+		} else {
+			args = append(args, "--licenses")
+		}
+	}
+
+	cmd := exec.CommandContext(ctx, s.binaryPath, args...)
 
 	// Execute command and capture stdout/stderr separately
 	output, err := s.executeOSVScanner(ctx, cmd)
@@ -123,6 +177,38 @@ func (s *Scanner) SetTimeout(timeout time.Duration) {
 // GetBinaryPath returns the path to the osv-scanner binary being used
 func (s *Scanner) GetBinaryPath() string {
 	return s.binaryPath
+}
+
+// DownloadDB downloads or refreshes the local vulnerability database for offline scanning
+func (s *Scanner) DownloadDB() error {
+	ctx, cancel := context.WithTimeout(context.Background(), s.timeout)
+	defer cancel()
+
+	// osv-scanner requires a scan target even when just downloading the database
+	// We scan the current directory with offline mode to trigger the download
+	cmd := exec.CommandContext(ctx, s.binaryPath,
+		"scan", "source",
+		"--offline",
+		"--download-offline-databases",
+		".",
+	)
+
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	if err != nil {
+		if ctx.Err() == context.DeadlineExceeded {
+			return fmt.Errorf("database download timed out after %v", s.timeout)
+		}
+		// Ignore exit code 1 (vulnerabilities found) - we only care about the download
+		if exitErr, ok := err.(*exec.ExitError); ok && exitErr.ExitCode() == 1 {
+			return nil
+		}
+		return fmt.Errorf("failed to download database: %s", stderr.String())
+	}
+
+	return nil
 }
 
 // executeOSVScanner handles the actual command execution and manages OSV-scanner's exit code behavior

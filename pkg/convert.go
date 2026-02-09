@@ -126,3 +126,39 @@ func extractCVSSScore(cvssString string) float64 {
 	}
 	return 0.0
 }
+
+// GetLicenseViolationCount returns the total number of license violations found
+func (r *OSVScanResult) GetLicenseViolationCount() int {
+	count := 0
+	for _, source := range r.Results {
+		for _, pkg := range source.Packages {
+			count += len(pkg.LicenseViolations)
+		}
+	}
+	return count
+}
+
+// GetPackagesWithLicenseViolations returns packages that have license violations
+func (r *OSVScanResult) GetPackagesWithLicenseViolations() []PackageResult {
+	var packages []PackageResult
+	for _, source := range r.Results {
+		for _, pkg := range source.Packages {
+			if len(pkg.LicenseViolations) > 0 {
+				packages = append(packages, pkg)
+			}
+		}
+	}
+	return packages
+}
+
+// HasLicenseViolations returns true if any license violations were found
+func (r *OSVScanResult) HasLicenseViolations() bool {
+	for _, source := range r.Results {
+		for _, pkg := range source.Packages {
+			if len(pkg.LicenseViolations) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
