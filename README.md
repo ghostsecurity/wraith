@@ -48,6 +48,19 @@ cosign verify-blob wraith_linux_amd64.tar.gz \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
 ```
 
+**macOS Security Warning:**
+
+When running the binary on macOS, you may see a Gatekeeper warning. This is because the binary is not signed with an Apple Developer certificate. To bypass:
+
+```bash
+# Remove quarantine attribute
+xattr -d com.apple.quarantine ./wraith ./osv-scanner
+
+# Or right-click the binary in Finder and select "Open"
+```
+
+The binaries are safe to run - verify with cosign signatures above.
+
 ## CLI Usage
 
 ```bash
