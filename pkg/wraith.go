@@ -6,6 +6,13 @@ import "time"
 type OSVScanResult struct {
 	Results            []SourceResult      `json:"results"`
 	ExperimentalConfig *ExperimentalConfig `json:"experimental_config,omitempty"`
+	LicenseSummary     []LicenseSummary    `json:"license_summary,omitempty"`
+}
+
+// LicenseSummary represents license count information
+type LicenseSummary struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
 }
 
 // SourceResult represents scan results for a single source (lockfile, directory, etc.)
@@ -22,9 +29,11 @@ type Source struct {
 
 // PackageResult represents vulnerability information for a single package
 type PackageResult struct {
-	Package         Package              `json:"package"`
-	Vulnerabilities []Vulnerability      `json:"vulnerabilities,omitempty"`
-	Groups          []VulnerabilityGroup `json:"groups,omitempty"`
+	Package           Package              `json:"package"`
+	Vulnerabilities   []Vulnerability      `json:"vulnerabilities,omitempty"`
+	Groups            []VulnerabilityGroup `json:"groups,omitempty"`
+	Licenses          []string             `json:"licenses,omitempty"`
+	LicenseViolations []string             `json:"license_violations,omitempty"`
 }
 
 // Package represents basic package information

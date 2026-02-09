@@ -45,3 +45,10 @@ lint: ## Run linter
 	@which golangci-lint || go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	golangci-lint run
 
+.PHONY: release
+release: ## Create a release using GoReleaser
+	goreleaser release --clean
+
+.PHONY: release-snapshot
+release-snapshot: ## Create a snapshot release (no tagging required)
+	goreleaser build --snapshot --clean --single-target
