@@ -32,6 +32,22 @@ sudo mv wraith osv-scanner /usr/local/bin/
 
 For Windows, download the `.zip` file from the releases page and extract both `wraith.exe` and `osv-scanner.exe` to a directory in your PATH.
 
+### Verifying Release Signatures
+
+All release artifacts are signed with [Sigstore cosign](https://github.com/sigstore/cosign) for supply chain security.
+
+```bash
+# Install cosign
+brew install cosign  # macOS
+# or download from https://github.com/sigstore/cosign/releases
+
+# Verify a release artifact
+cosign verify-blob wraith_linux_amd64.tar.gz \
+  --bundle wraith_linux_amd64.tar.gz.sigstore.json \
+  --certificate-identity-regexp 'https://github.com/ghostsecurity/wraith/.github/workflows/release.yml' \
+  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com'
+```
+
 ## CLI Usage
 
 ```bash
@@ -65,7 +81,10 @@ wraith scan --offline go.mod
 wraith scan --offline --download-db go.mod
 ```
 
-The database is stored in `~/.cache/osv-scanner/` (Linux) or `~/Library/Caches/osv-scanner/` (macOS).
+The database is stored in:
+- Linux: `~/.cache/osv-scanner/`
+- macOS: `~/Library/Caches/osv-scanner/`
+- Windows: `%LOCALAPPDATA%\osv-scanner\`
 
 ### License Scanning
 
