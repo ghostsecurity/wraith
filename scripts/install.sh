@@ -1,6 +1,6 @@
 #!/bin/bash
 # install.sh
-# Cross-platform installer for the wraith SCA scanner
+# Cross-platform installer for Ghost Security Wraith
 # Supports: Linux (amd64, arm64), macOS (amd64, arm64), Windows (amd64 via Git Bash/WSL)
 
 set -e
@@ -110,8 +110,8 @@ install_from_github() {
 
 # Main
 main() {
-    echo "Wraith SCA Scanner Installer"
-    echo "============================"
+    echo "Wraith Installer"
+    echo "================"
 
     # Detect platform
     local platform
