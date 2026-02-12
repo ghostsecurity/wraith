@@ -4,7 +4,11 @@
 
 Dependency vulnerability scanner wrapping [osv-scanner](https://github.com/google/osv-scanner) with a user-friendly CLI and Go library.
 
+![Demo](./docs/demo.gif)
+
 ## Quick Start
+
+Supports Linux, macOS, and Windows (via Git Bash, MSYS2, or Cygwin).
 
 ```bash
 curl -sfL https://raw.githubusercontent.com/ghostsecurity/wraith/main/scripts/install.sh | bash
