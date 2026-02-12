@@ -1,4 +1,4 @@
-![Wraith Logo](./docs/wraith.png)
+![Wraith Banner](https://media.ghostsecurity.ai/wraith-banner.png)
 
 # Ghost Security Wraith
 
