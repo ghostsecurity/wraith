@@ -2,7 +2,7 @@
 
 # Ghost Security Wraith
 
-Dependency vulnerability scanner wrapping [osv-scanner](https://github.com/google/osv-scanner) with a user-friendly CLI and Go library. Wraith is designed to be easy to use by humans and AI agents alike.
+Dependency vulnerability scanner wrapping [osv-scanner](https://github.com/google/osv-scanner) with a user-friendly CLI and Go library. Wraith is designed to be easy to use by humans and AI agents alike. For AI agent integration, see [Ghost Security Skills](https://github.com/ghostsecurity/skills).
 
 ![Demo](./docs/demo.gif)
 
