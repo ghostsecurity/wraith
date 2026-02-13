@@ -48,10 +48,10 @@ get_installed_version() {
     fi
 }
 
-# Strip version prefixes for comparison
+# Extract bare version number for comparison
 # "wraith 1.0.0" -> "1.0.0", "v1.0.0" -> "1.0.0"
 normalize_version() {
-    echo "$1" | sed -E 's/^(wraith |v)//'
+    echo "$1" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1
 }
 
 # Download and install from GitHub
